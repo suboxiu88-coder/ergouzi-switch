@@ -7,10 +7,11 @@
 
 ## 下载安装
 
-打开本仓库右侧的 **Releases**，下载适合你系统的安装包：
+打开本仓库右侧的 **Releases**，下载最新版安装包：
 
-- Windows: 下载 `.msi` 或 `.exe`
-- macOS: 下载 `.dmg`
+- Windows: 下载 `x64-setup.exe` 或 `.msi`
+- Apple Silicon Mac（M1/M2/M3/M4）: 下载 `aarch64.dmg`
+- Intel Mac: 下载 `x64.dmg`
 
 macOS 如果提示“无法验证开发者”，可以在 Finder 里右键应用，选择“打开”。这是因为群友版默认没有 Apple Developer 签名。
 
@@ -19,11 +20,11 @@ macOS 如果提示“无法验证开发者”，可以在 Finder 里右键应用
 推荐用 GitHub Actions 自动打包：
 
 ```bash
-git tag v3.15.0-ergouzi.1
-git push origin v3.15.0-ergouzi.1
+git tag v3.15.0-ergouzi.4
+git push origin v3.15.0-ergouzi.4
 ```
 
-推送 tag 后，GitHub 会自动构建 Windows 和 macOS 安装包，并挂到 Releases。
+推送 tag 后，GitHub 会自动构建 Windows、Apple Silicon Mac 和 Intel Mac 安装包，并挂到 Releases。版本号里的最后一位每次发新版递增即可。
 
 ## 本地开发
 
