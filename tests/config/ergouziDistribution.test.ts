@@ -215,10 +215,16 @@ describe("Ergouzi distribution defaults", () => {
   });
 
   it("uses Ergouzi names for user-facing shell integration labels", () => {
+    const tauriConfig = JSON.parse(
+      readText("src-tauri", "tauri.conf.json"),
+    ) as any;
+    const indexHtmlText = readText("src", "index.html");
     const libText = readText("src-tauri", "src", "lib.rs");
     const autoLaunchText = readText("src-tauri", "src", "auto_launch.rs");
     const infoPlistText = readText("src-tauri", "Info.plist");
 
+    expect(tauriConfig.app.windows[0].title).toBe("Ergouzi Switch");
+    expect(indexHtmlText).toContain("<title>Ergouzi Switch</title>");
     expect(libText).toContain('.tooltip("Ergouzi Switch")');
     expect(libText).not.toContain('.tooltip("CC Switch")');
     expect(autoLaunchText).toContain('let app_name = "Ergouzi Switch";');

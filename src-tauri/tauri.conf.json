@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "",
+        "title": "Ergouzi Switch",
         "titleBarStyle": "Overlay",
         "width": 1000,
         "height": 650,
