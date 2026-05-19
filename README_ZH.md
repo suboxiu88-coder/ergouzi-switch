@@ -9,11 +9,9 @@
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-orange.svg)](https://tauri.app/)
 [![Downloads](https://img.shields.io/github/downloads/suboxiu88-coder/ergouzi-switch/total)](https://github.com/suboxiu88-coder/ergouzi-switch/releases/latest)
 
-<a href="https://trendshift.io/repositories/15372" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15372" alt="farion1231%2Fergouzi-switch | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-
 ### 🌐 唯一官方网站：**[ergouzi.life](https://ergouzi.life)**
 
-[English](README.md) | 中文 | [日本語](README_JA.md) | [更新日志](CHANGELOG.md)
+[English](README.md) | 中文 | [更新日志](CHANGELOG.md)
 
 </div>
 

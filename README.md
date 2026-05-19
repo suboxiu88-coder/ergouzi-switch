@@ -17,7 +17,7 @@ macOS 如果提示“无法验证开发者”，可以在 Finder 里右键应用
 
 ## 给维护者发新版
 
-推荐用 GitHub Actions 自动打包：
+维护者可以用 GitHub Actions 自动打包：
 
 ```bash
 git tag v3.15.0-ergouzi.8
