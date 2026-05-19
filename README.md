@@ -1,6 +1,6 @@
 # Ergouzi Switch 群友版
 
-这是基于 `cc-switch` 定制的群友版桌面工具。默认 API 地址已经固定到 Ergouzi：
+这是基于cc-switch 定制的群友版桌面工具。默认 API 地址已经固定到 Ergouzi：
 
 - Claude / Claude Desktop / Gemini: `https://ergouzi.life`
 - Codex / OpenAI-compatible / Hermes: `https://ergouzi.life/v1`
@@ -40,7 +40,7 @@ pnpm tauri build
 
 ## 自动更新说明
 
-群友版已经关闭原版 `cc-switch` 的自动更新源，避免安装后被更新回原版。后续更新请从本仓库 Releases 手动下载新版安装包。
+群友版已经关闭原版 cc-switch 的自动更新源，避免安装后被更新回原版。后续更新请从本仓库 Releases 手动下载新版安装包。
 
 ## License
 
