@@ -33,7 +33,7 @@ impl TrayTexts {
         match language {
             "en" => Self {
                 show_main: "Open main window",
-                open_website: "Open Official Website",
+                open_website: "Open Ergouzi Website",
                 no_providers_label: "(no providers)",
                 lightweight_mode: "Lightweight Mode",
                 quit: "Quit",
@@ -703,7 +703,7 @@ pub fn handle_tray_menu_event(app: &tauri::AppHandle, event_id: &str) {
             }
         }
         "open_website" => {
-            if let Err(e) = app.opener().open_url("https://ccswitch.io", None::<String>) {
+            if let Err(e) = app.opener().open_url("https://ergouzi.life/", None::<String>) {
                 log::error!("打开官方网站失败: {e}");
             }
         }

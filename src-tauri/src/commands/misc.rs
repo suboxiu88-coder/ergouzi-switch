@@ -1458,11 +1458,11 @@ pub(crate) fn launch_terminal_running(command_line: &str, label: &str) -> Result
         let content = format!(
             r#"#!/bin/bash
 trap 'rm -f "{script_path}"' EXIT
-echo "[cc-switch] Starting: {cmd}"
+echo "[ergouzi-switch] Starting: {cmd}"
 echo ""
 {cmd}
 echo ""
-echo "[cc-switch] Command exited. Press any key to close."
+echo "[ergouzi-switch] Command exited. Press any key to close."
 read -n 1 -s
 "#,
             script_path = file.display(),
@@ -1581,7 +1581,7 @@ read -n 1 -s
 
         let bat_file = temp_dir.join(format!("cc_switch_{}_{}.bat", label, pid));
         let content = format!(
-            "@echo off\r\necho [cc-switch] Starting: {cmd}\r\necho.\r\n{cmd}\r\necho.\r\necho [cc-switch] Command exited. Press any key to close.\r\npause >nul\r\ndel \"%~f0\" >nul 2>&1\r\n",
+            "@echo off\r\necho [ergouzi-switch] Starting: {cmd}\r\necho.\r\n{cmd}\r\necho.\r\necho [ergouzi-switch] Command exited. Press any key to close.\r\npause >nul\r\ndel \"%~f0\" >nul 2>&1\r\n",
             cmd = command_line,
         );
         std::fs::write(&bat_file, &content).map_err(|e| format!("写入批处理文件失败: {e}"))?;

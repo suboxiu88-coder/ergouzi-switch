@@ -1,6 +1,6 @@
 # Flatpak Build Guide
 
-This directory contains the Flatpak manifest (`com.ccswitch.desktop`) for CC Switch, used to convert the generated `.deb` artifact into an installable `.flatpak` package via CI or local builds.
+This directory contains the Flatpak manifest (`com.ccswitch.desktop`) for Ergouzi Switch, used to convert the generated `.deb` artifact into an installable `.flatpak` package via CI or local builds.
 
 ## Dependencies
 
@@ -27,7 +27,7 @@ pnpm tauri build -- --bundles deb
 2) Copy the generated deb to this directory:
 
 ```bash
-cp "$(find src-tauri/target/release/bundle -name '*.deb' | head -n 1)" flatpak/cc-switch.deb
+cp "$(find src-tauri/target/release/bundle -name '*.deb' | head -n 1)" flatpak/ergouzi-switch.deb
 ```
 
 3) Build the local Flatpak repository and export the `.flatpak`:
@@ -51,7 +51,7 @@ The current manifest uses `--filesystem=home` by default for "download and run" 
 If you prefer minimal permissions (e.g., for Flathub submission or security concerns), you can replace `--filesystem=home` in `flatpak/com.ccswitch.desktop.yml` with more precise grants:
 
 ```yaml
-  - --filesystem=~/.cc-switch:create
+  - --filesystem=~/.ergouzi-switch:create
   - --filesystem=~/.claude:create
   - --filesystem=~/.claude.json
   - --filesystem=~/.codex:create

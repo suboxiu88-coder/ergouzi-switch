@@ -136,19 +136,19 @@ const brandedRoutes = (
 
 export const claudeDesktopProviderPresets: ClaudeDesktopProviderPreset[] = [
   {
-    name: "Claude Desktop Official",
-    websiteUrl: "https://claude.ai/download",
-    category: "official",
+    name: "Ergouzi",
+    websiteUrl: "https://ergouzi.life/",
+    category: "aggregator",
     baseUrl: ERGOUZI_ANTHROPIC_BASE_URL,
     mode: "direct",
     apiFormat: "anthropic",
     theme: {
       icon: "claude",
-      backgroundColor: "#D97757",
+      backgroundColor: "#16A34A",
       textColor: "#FFFFFF",
     },
-    icon: "anthropic",
-    iconColor: "#D4915D",
+    icon: "ergouzi",
+    iconColor: "#16A34A",
   },
   {
     name: "Shengsuanyun",

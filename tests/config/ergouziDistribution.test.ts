@@ -55,6 +55,7 @@ describe("Ergouzi distribution defaults", () => {
       resolve("src", "components", "settings", "AboutSection.tsx"),
       "utf8",
     );
+    const trayText = readFileSync(resolve("src-tauri", "src", "tray.rs"), "utf8");
     const cargoManifestText = readFileSync(
       resolve("src-tauri", "Cargo.toml"),
       "utf8",
@@ -63,30 +64,46 @@ describe("Ergouzi distribution defaults", () => {
     expect(tauriConfigText).not.toContain("farion1231/cc-switch");
     expect(miscCommandText).not.toContain("farion1231/cc-switch");
     expect(aboutSectionText).not.toContain("farion1231/cc-switch");
+    expect(trayText).not.toContain("ccswitch.io");
     expect(cargoManifestText).not.toContain("farion1231/cc-switch");
   });
 
-  it("uses Ergouzi endpoints for official frontend presets", () => {
-    const claudeOfficial = providerPresets.find(
-      (preset) => preset.name === "Claude Official",
-    );
-    const claudeDesktopOfficial = claudeDesktopProviderPresets.find(
-      (preset) => preset.name === "Claude Desktop Official",
-    );
-    const codexOfficial = codexProviderPresets.find(
-      (preset) => preset.name === "OpenAI Official",
-    );
-    const geminiOfficial = geminiProviderPresets.find(
-      (preset) => preset.name === "Google Official",
-    );
+  it("uses Ergouzi as the routable default frontend provider", () => {
+    const claudeDefault = providerPresets[0];
+    const claudeDesktopDefault = claudeDesktopProviderPresets[0];
+    const codexDefault = codexProviderPresets[0];
+    const geminiDefault = geminiProviderPresets[0];
 
-    expect((claudeOfficial?.settingsConfig as any).env.ANTHROPIC_BASE_URL).toBe(
+    expect(claudeDefault).toMatchObject({
+      name: "Ergouzi",
+      websiteUrl: "https://ergouzi.life/",
+      category: "aggregator",
+    });
+    expect(claudeDefault.isOfficial).toBeUndefined();
+    expect(claudeDesktopDefault).toMatchObject({
+      name: "Ergouzi",
+      websiteUrl: "https://ergouzi.life/",
+      category: "aggregator",
+    });
+    expect(codexDefault).toMatchObject({
+      name: "Ergouzi",
+      websiteUrl: "https://ergouzi.life/",
+      category: "aggregator",
+    });
+    expect(codexDefault.isOfficial).toBeUndefined();
+    expect(geminiDefault).toMatchObject({
+      name: "Ergouzi",
+      websiteUrl: "https://ergouzi.life/",
+      category: "aggregator",
+    });
+
+    expect((claudeDefault.settingsConfig as any).env.ANTHROPIC_BASE_URL).toBe(
       ERGOUZI_ROOT_URL,
     );
-    expect(claudeDesktopOfficial?.baseUrl).toBe(ERGOUZI_ROOT_URL);
-    expect(codexOfficial?.config).toContain(`base_url = "${ERGOUZI_V1_URL}"`);
+    expect(claudeDesktopDefault.baseUrl).toBe(ERGOUZI_ROOT_URL);
+    expect(codexDefault.config).toContain(`base_url = "${ERGOUZI_V1_URL}"`);
     expect(
-      (geminiOfficial?.settingsConfig as any).env.GOOGLE_GEMINI_BASE_URL,
+      (geminiDefault.settingsConfig as any).env.GOOGLE_GEMINI_BASE_URL,
     ).toBe(ERGOUZI_ROOT_URL);
   });
 
@@ -113,13 +130,11 @@ describe("Ergouzi distribution defaults", () => {
   });
 
   it("keeps Ergouzi Codex defaults free of local machine preferences", () => {
-    const codexOfficial = codexProviderPresets.find(
-      (preset) => preset.name === "OpenAI Official",
-    );
+    const codexDefault = codexProviderPresets[0];
     const configTexts = [
       ERGOUZI_CODEX_CONFIG,
       parseJson<any>(CODEX_DEFAULT_CONFIG).config,
-      codexOfficial?.config ?? "",
+      codexDefault.config,
     ];
 
     for (const configText of configTexts) {
@@ -150,9 +165,12 @@ describe("Ergouzi distribution defaults", () => {
       const messages = JSON.parse(
         readText("src", "i18n", "locales", `${locale}.json`),
       ) as any;
+      const serializedMessages = JSON.stringify(messages);
 
       expect(messages.app.title).toBe("Ergouzi Switch");
       expect(messages.firstRunNotice.title).toContain("Ergouzi Switch");
+      expect(serializedMessages).not.toContain("CC Switch");
+      expect(serializedMessages).not.toContain("cc-switch");
       expect(messages.firstRunNotice.bodyDefault).not.toContain(
         "saved your existing setup",
       );
@@ -242,5 +260,63 @@ describe("Ergouzi distribution defaults", () => {
     expect(windowsConfig.nsis.languages).toEqual(["SimpChinese"]);
     expect(windowsConfig.nsis.displayLanguageSelector).toBe(false);
     expect(windowsConfig.wix.language).toBe("zh-CN");
+  });
+
+  it("seeds Ergouzi as the default provider identity in the local database", () => {
+    const seedText = readText(
+      "src-tauri",
+      "src",
+      "database",
+      "dao",
+      "providers_seed.rs",
+    );
+    const providerDaoText = readText(
+      "src-tauri",
+      "src",
+      "database",
+      "dao",
+      "providers.rs",
+    );
+
+    for (const legacyName of [
+      "Claude Official",
+      "Claude Desktop Official",
+      "OpenAI Official",
+      "Google Official",
+    ]) {
+      expect(seedText).not.toContain(`name: "${legacyName}"`);
+      expect(providerDaoText).not.toContain(`provider.name, "${legacyName}"`);
+    }
+    expect(seedText.match(/name: "Ergouzi"/g)).toHaveLength(4);
+    expect(seedText).toContain('category: "aggregator"');
+    expect(providerDaoText).toContain("provider.category = Some(seed.category.to_string())");
+  });
+
+  it("uses Ergouzi Switch in visible local app surfaces", () => {
+    const visibleTexts = [
+      readText("src-tauri", "src", "database", "backup.rs"),
+      readText("src-tauri", "src", "claude_desktop_config.rs"),
+      readText(
+        "src",
+        "components",
+        "providers",
+        "forms",
+        "ClaudeDesktopProviderForm.tsx",
+      ),
+      readText("src", "hooks", "useImportExport.ts"),
+      readText("src-tauri", "src", "commands", "codex_oauth.rs"),
+      readText("src-tauri", "src", "commands", "misc.rs"),
+      readText("src-tauri", "src", "tray.rs"),
+    ].join("\n");
+
+    expect(visibleTexts).not.toContain("CC Switch");
+    expect(visibleTexts).not.toContain("[cc-switch]");
+    expect(visibleTexts).not.toContain("cc-switch-export");
+    expect(visibleTexts).not.toContain("via cc-switch");
+    expect(visibleTexts).not.toContain("ccswitch.io");
+    expect(visibleTexts).toContain("Ergouzi Switch");
+    expect(visibleTexts).toContain("https://ergouzi.life/");
+    expect(visibleTexts).toContain("ergouzi-switch-export");
+    expect(visibleTexts).toContain("[ergouzi-switch]");
   });
 });

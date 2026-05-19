@@ -22,6 +22,8 @@ import { extractCodexBaseUrl } from "@/utils/providerConfigUtils";
 import { useProviderHealth } from "@/lib/query/failover";
 import { useUsageQuery } from "@/lib/query/queries";
 
+const ERGOUZI_BASE_URL = "https://ergouzi.life";
+
 interface DragHandleProps {
   attributes: DraggableAttributes;
   listeners: DraggableSyntheticListeners;
@@ -62,6 +64,10 @@ interface ProviderCardProps {
 
 /** 判断是否为官方供应商（无自定义 base URL / API key，直连官方 API） */
 function isOfficialProvider(provider: Provider, appId: AppId): boolean {
+  if (isErgouziProvider(provider, appId)) {
+    return false;
+  }
+
   if (provider.category === "official") {
     return true;
   }
@@ -83,6 +89,37 @@ function isOfficialProvider(provider: Provider, appId: AppId): boolean {
     return (
       (!apiKey || (typeof apiKey === "string" && apiKey.trim() === "")) &&
       (!baseUrl || (typeof baseUrl === "string" && baseUrl.trim() === ""))
+    );
+  }
+  return false;
+}
+
+function isErgouziProvider(provider: Provider, appId: AppId): boolean {
+  const name = provider.name.trim().toLowerCase();
+  if (name === "ergouzi") {
+    return true;
+  }
+
+  const config = provider.settingsConfig as Record<string, any>;
+  if (appId === "claude" || appId === "claude-desktop") {
+    const baseUrl = config?.env?.ANTHROPIC_BASE_URL;
+    return (
+      typeof baseUrl === "string" &&
+      baseUrl.trim().replace(/\/+$/, "") === ERGOUZI_BASE_URL
+    );
+  }
+  if (appId === "codex") {
+    const baseUrl = extractCodexBaseUrl(config?.config);
+    return (
+      typeof baseUrl === "string" &&
+      baseUrl.trim().replace(/\/+$/, "") === `${ERGOUZI_BASE_URL}/v1`
+    );
+  }
+  if (appId === "gemini") {
+    const baseUrl = config?.env?.GOOGLE_GEMINI_BASE_URL;
+    return (
+      typeof baseUrl === "string" &&
+      baseUrl.trim().replace(/\/+$/, "") === ERGOUZI_BASE_URL
     );
   }
   return false;
@@ -180,8 +217,7 @@ export function ProviderCard({
 
   const usageEnabled = provider.meta?.usage_script?.enabled ?? false;
   const isOfficial = isOfficialProvider(provider, appId);
-  const isOfficialBlockedByProxy =
-    isProxyTakeover && (provider.category === "official" || isOfficial);
+  const isOfficialBlockedByProxy = isProxyTakeover && isOfficial;
   const isCopilot =
     provider.meta?.providerType === PROVIDER_TYPES.GITHUB_COPILOT ||
     provider.meta?.usage_script?.templateType === "github_copilot";
@@ -345,21 +381,25 @@ export function ProviderCard({
                   </span>
                 )}
 
-              {appId === "claude" && provider.category === "official" && (
-                <span className="inline-flex items-center rounded-md bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-slate-700/60 dark:text-slate-200">
-                  {t("claudeCode.noRoutingSupport", {
-                    defaultValue: "不支持路由",
-                  })}
-                </span>
-              )}
+              {appId === "claude" &&
+                provider.category === "official" &&
+                isOfficial && (
+                  <span className="inline-flex items-center rounded-md bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-slate-700/60 dark:text-slate-200">
+                    {t("claudeCode.noRoutingSupport", {
+                      defaultValue: "不支持路由",
+                    })}
+                  </span>
+                )}
 
-              {appId === "codex" && provider.category === "official" && (
-                <span className="inline-flex items-center rounded-md bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-slate-700/60 dark:text-slate-200">
-                  {t("codex.noRoutingSupport", {
-                    defaultValue: "不支持路由",
-                  })}
-                </span>
-              )}
+              {appId === "codex" &&
+                provider.category === "official" &&
+                isOfficial && (
+                  <span className="inline-flex items-center rounded-md bg-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-slate-700/60 dark:text-slate-200">
+                    {t("codex.noRoutingSupport", {
+                      defaultValue: "不支持路由",
+                    })}
+                  </span>
+                )}
 
               {isProxyRunning && isInFailoverQueue && health && (
                 <ProviderHealthBadge

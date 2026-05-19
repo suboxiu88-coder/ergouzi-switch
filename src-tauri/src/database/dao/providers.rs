@@ -598,11 +598,13 @@ impl Database {
     pub fn init_default_official_providers(&self) -> Result<usize, AppError> {
         use crate::database::dao::providers_seed::OFFICIAL_SEEDS;
 
+        let repaired = self.repair_ergouzi_seed_provider_defaults()?;
+
         if self
             .get_bool_flag("official_providers_seeded")
             .unwrap_or(false)
         {
-            return Ok(0);
+            return Ok(repaired);
         }
 
         let mut inserted = 0_usize;
@@ -629,7 +631,7 @@ impl Database {
                 settings_config,
                 Some(seed.website_url.to_string()),
             );
-            provider.category = Some("official".to_string());
+            provider.category = Some(seed.category.to_string());
             provider.icon = Some(seed.icon.to_string());
             provider.icon_color = Some(seed.icon_color.to_string());
             provider.sort_index = Some(next_sort_index);
@@ -647,7 +649,51 @@ impl Database {
         // 即使 inserted=0（例如用户手动创建过同 id）也设置 flag 防止反复检查
         self.set_setting("official_providers_seeded", "true")?;
 
-        Ok(inserted)
+        Ok(inserted + repaired)
+    }
+
+    pub fn repair_ergouzi_seed_provider_defaults(&self) -> Result<usize, AppError> {
+        use crate::database::dao::providers_seed::OFFICIAL_SEEDS;
+
+        let mut repaired = 0_usize;
+        for seed in OFFICIAL_SEEDS {
+            let app_type_str = seed.app_type.as_str();
+            let Some(mut provider) = self.get_provider_by_id(seed.id, app_type_str)? else {
+                continue;
+            };
+
+            let has_legacy_name = seed
+                .legacy_names
+                .iter()
+                .any(|legacy_name| provider.name == *legacy_name);
+            let has_legacy_category = provider.category.as_deref() == Some("official");
+            if !has_legacy_name && !has_legacy_category {
+                continue;
+            }
+
+            if has_legacy_name {
+                provider.name = seed.name.to_string();
+            }
+            if has_legacy_category {
+                provider.category = Some(seed.category.to_string());
+            }
+            if provider.website_url.as_deref() != Some(seed.website_url) {
+                provider.website_url = Some(seed.website_url.to_string());
+            }
+            if let Some(meta) = provider.meta.as_mut() {
+                if meta.partner_promotion_key.as_deref() == Some("google-official") {
+                    meta.partner_promotion_key = None;
+                }
+                meta.is_partner = None;
+            }
+            provider.icon = Some(seed.icon.to_string());
+            provider.icon_color = Some(seed.icon_color.to_string());
+
+            self.save_provider(app_type_str, &provider)?;
+            repaired += 1;
+        }
+
+        Ok(repaired)
     }
 
     /// 按 id 兜底插入单条 official seed（仅当目标表中该 id 不存在时插入）。
@@ -695,7 +741,7 @@ impl Database {
             settings_config,
             Some(seed.website_url.to_string()),
         );
-        provider.category = Some("official".to_string());
+        provider.category = Some(seed.category.to_string());
         provider.icon = Some(seed.icon.to_string());
         provider.icon_color = Some(seed.icon_color.to_string());
         provider.sort_index = Some(next_sort_index);
@@ -729,10 +775,10 @@ mod ensure_official_seed_tests {
             .expect("provider exists after ensure");
 
         assert_eq!(provider.id, CLAUDE_DESKTOP_OFFICIAL_PROVIDER_ID);
-        assert_eq!(provider.name, "Claude Desktop Official");
-        assert_eq!(provider.category.as_deref(), Some("official"));
-        assert_eq!(provider.icon.as_deref(), Some("anthropic"));
-        assert_eq!(provider.icon_color.as_deref(), Some("#D4915D"));
+        assert_eq!(provider.name, "Ergouzi");
+        assert_eq!(provider.category.as_deref(), Some("aggregator"));
+        assert_eq!(provider.icon.as_deref(), Some("ergouzi"));
+        assert_eq!(provider.icon_color.as_deref(), Some("#16A34A"));
     }
 
     #[test]
@@ -767,6 +813,40 @@ mod ensure_official_seed_tests {
             after.name, "My Custom Backup",
             "customization must not be overwritten"
         );
+    }
+
+    #[test]
+    fn repair_updates_legacy_seed_branding_without_wiping_settings() {
+        let db = Database::memory().expect("memory db");
+        let mut provider = crate::provider::Provider::with_id(
+            "codex-official".to_string(),
+            "OpenAI Official".to_string(),
+            serde_json::json!({
+                "auth": { "OPENAI_API_KEY": "user-key" },
+                "config": "model_provider = \"ergouzi\"\n[model_providers.ergouzi]\nbase_url = \"https://ergouzi.life/v1\""
+            }),
+            Some("https://chatgpt.com/codex".to_string()),
+        );
+        provider.category = Some("official".to_string());
+        provider.icon = Some("openai".to_string());
+        db.save_provider(AppType::Codex.as_str(), &provider)
+            .expect("save legacy provider");
+
+        assert_eq!(
+            db.repair_ergouzi_seed_provider_defaults()
+                .expect("repair legacy seed"),
+            1
+        );
+
+        let after = db
+            .get_provider_by_id("codex-official", AppType::Codex.as_str())
+            .expect("query ok")
+            .expect("provider exists");
+        assert_eq!(after.name, "Ergouzi");
+        assert_eq!(after.category.as_deref(), Some("aggregator"));
+        assert_eq!(after.website_url.as_deref(), Some("https://ergouzi.life/"));
+        assert_eq!(after.icon.as_deref(), Some("ergouzi"));
+        assert_eq!(after.settings_config["auth"]["OPENAI_API_KEY"], "user-key");
     }
 
     #[test]

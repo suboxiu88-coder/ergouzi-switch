@@ -75,23 +75,22 @@ export interface ProviderPreset {
 
 export const providerPresets: ProviderPreset[] = [
   {
-    name: "Claude Official",
-    websiteUrl: "https://www.anthropic.com/claude-code",
+    name: "Ergouzi",
+    websiteUrl: "https://ergouzi.life/",
     settingsConfig: {
       env: {
         ANTHROPIC_BASE_URL: ERGOUZI_ANTHROPIC_BASE_URL,
         ANTHROPIC_AUTH_TOKEN: "",
       },
     },
-    isOfficial: true, // 明确标识为官方预设
-    category: "official",
+    category: "aggregator",
     theme: {
       icon: "claude",
-      backgroundColor: "#D97757",
+      backgroundColor: "#16A34A",
       textColor: "#FFFFFF",
     },
-    icon: "anthropic",
-    iconColor: "#D4915D",
+    icon: "ergouzi",
+    iconColor: "#16A34A",
   },
   {
     name: "Shengsuanyun",

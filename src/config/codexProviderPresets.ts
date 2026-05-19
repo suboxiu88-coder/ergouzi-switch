@@ -65,19 +65,18 @@ requires_openai_auth = true`;
 
 export const codexProviderPresets: CodexProviderPreset[] = [
   {
-    name: "OpenAI Official",
-    websiteUrl: "https://chatgpt.com/codex",
-    isOfficial: true,
-    category: "official",
+    name: "Ergouzi",
+    websiteUrl: "https://ergouzi.life/",
+    category: "aggregator",
     auth: generateThirdPartyAuth(""),
     config: ERGOUZI_CODEX_CONFIG,
     theme: {
       icon: "codex",
-      backgroundColor: "#1F2937", // gray-800
+      backgroundColor: "#16A34A",
       textColor: "#FFFFFF",
     },
-    icon: "openai",
-    iconColor: "#00A67E",
+    icon: "ergouzi",
+    iconColor: "#16A34A",
   },
   {
     name: "Shengsuanyun",

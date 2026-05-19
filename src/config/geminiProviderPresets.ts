@@ -34,9 +34,8 @@ export interface GeminiProviderPreset {
 
 export const geminiProviderPresets: GeminiProviderPreset[] = [
   {
-    name: "Google Official",
-    websiteUrl: "https://ai.google.dev/",
-    apiKeyUrl: "https://aistudio.google.com/apikey",
+    name: "Ergouzi",
+    websiteUrl: "https://ergouzi.life/",
     settingsConfig: {
       env: {
         GOOGLE_GEMINI_BASE_URL: ERGOUZI_GEMINI_BASE_URL,
@@ -46,16 +45,15 @@ export const geminiProviderPresets: GeminiProviderPreset[] = [
     },
     baseURL: ERGOUZI_GEMINI_BASE_URL,
     model: "gemini-3-pro-preview",
-    description: "Google 官方 Gemini API (OAuth)",
-    category: "official",
-    partnerPromotionKey: "google-official",
+    description: "Ergouzi Gemini API",
+    category: "aggregator",
     theme: {
       icon: "gemini",
-      backgroundColor: "#4285F4",
+      backgroundColor: "#16A34A",
       textColor: "#FFFFFF",
     },
-    icon: "gemini",
-    iconColor: "#4285F4",
+    icon: "ergouzi",
+    iconColor: "#16A34A",
   },
   {
     name: "Shengsuanyun",

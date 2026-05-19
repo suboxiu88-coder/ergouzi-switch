@@ -17,6 +17,8 @@ pub(crate) struct OfficialProviderSeed {
     pub id: &'static str,
     pub app_type: AppType,
     pub name: &'static str,
+    pub category: &'static str,
+    pub legacy_names: &'static [&'static str],
     pub website_url: &'static str,
     pub icon: &'static str,
     pub icon_color: &'static str,
@@ -31,40 +33,48 @@ pub(crate) const OFFICIAL_SEEDS: &[OfficialProviderSeed] = &[
     OfficialProviderSeed {
         id: "claude-official",
         app_type: AppType::Claude,
-        name: "Claude Official",
-        website_url: "https://www.anthropic.com/claude-code",
-        icon: "anthropic",
-        icon_color: "#D4915D",
+        name: "Ergouzi",
+        category: "aggregator",
+        legacy_names: &["Claude Official"],
+        website_url: "https://ergouzi.life/",
+        icon: "ergouzi",
+        icon_color: "#16A34A",
         // 空 env 让用户走 Claude CLI 默认认证流程
         settings_config_json: r#"{"env":{"ANTHROPIC_BASE_URL":"https://ergouzi.life","ANTHROPIC_AUTH_TOKEN":""}}"#,
     },
     OfficialProviderSeed {
         id: CLAUDE_DESKTOP_OFFICIAL_PROVIDER_ID,
         app_type: AppType::ClaudeDesktop,
-        name: "Claude Desktop Official",
-        website_url: "https://claude.ai/download",
-        icon: "anthropic",
-        icon_color: "#D4915D",
+        name: "Ergouzi",
+        category: "aggregator",
+        legacy_names: &["Claude Desktop Official"],
+        website_url: "https://ergouzi.life/",
+        icon: "ergouzi",
+        icon_color: "#16A34A",
         // 空 env 只是占位；切换该 provider 时会恢复 Claude Desktop 1P 模式
         settings_config_json: r#"{"env":{"ANTHROPIC_BASE_URL":"https://ergouzi.life","ANTHROPIC_AUTH_TOKEN":""}}"#,
     },
     OfficialProviderSeed {
         id: "codex-official",
         app_type: AppType::Codex,
-        name: "OpenAI Official",
-        website_url: "https://chatgpt.com/codex",
-        icon: "openai",
-        icon_color: "#00A67E",
+        name: "Ergouzi",
+        category: "aggregator",
+        legacy_names: &["OpenAI Official"],
+        website_url: "https://ergouzi.life/",
+        icon: "ergouzi",
+        icon_color: "#16A34A",
         // 空 auth + 最小 Ergouzi config；不写入本机偏好配置。
         settings_config_json: r#"{"auth":{"OPENAI_API_KEY":""},"config":"model_provider = \"ergouzi\"\nmodel = \"gpt-5.4\"\n\n[model_providers.ergouzi]\nname = \"ergouzi\"\nbase_url = \"https://ergouzi.life/v1\"\nwire_api = \"responses\"\nrequires_openai_auth = true"}"#,
     },
     OfficialProviderSeed {
         id: "gemini-official",
         app_type: AppType::Gemini,
-        name: "Google Official",
-        website_url: "https://ai.google.dev/",
-        icon: "gemini",
-        icon_color: "#4285F4",
+        name: "Ergouzi",
+        category: "aggregator",
+        legacy_names: &["Google Official"],
+        website_url: "https://ergouzi.life/",
+        icon: "ergouzi",
+        icon_color: "#16A34A",
         // 空 env + 空 config 让用户走 Google OAuth
         settings_config_json: r#"{"env":{"GOOGLE_GEMINI_BASE_URL":"https://ergouzi.life","GEMINI_API_KEY":"","GEMINI_MODEL":"gemini-3-pro-preview"},"config":{}}"#,
     },
@@ -89,6 +99,8 @@ mod tests {
             .expect("claude desktop official seed");
 
         assert_eq!(seed.app_type, AppType::ClaudeDesktop);
+        assert_eq!(seed.name, "Ergouzi");
+        assert_eq!(seed.category, "aggregator");
         assert!(is_official_seed_id(CLAUDE_DESKTOP_OFFICIAL_PROVIDER_ID));
     }
 
