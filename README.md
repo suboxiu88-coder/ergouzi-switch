@@ -20,8 +20,8 @@ macOS 如果提示“无法验证开发者”，可以在 Finder 里右键应用
 推荐用 GitHub Actions 自动打包：
 
 ```bash
-git tag v3.15.0-ergouzi.4
-git push origin v3.15.0-ergouzi.4
+git tag v3.15.0-ergouzi.5
+git push origin v3.15.0-ergouzi.5
 ```
 
 推送 tag 后，GitHub 会自动构建 Windows、Apple Silicon Mac 和 Intel Mac 安装包，并挂到 Releases。版本号里的最后一位每次发新版递增即可。

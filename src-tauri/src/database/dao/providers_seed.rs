@@ -55,8 +55,8 @@ pub(crate) const OFFICIAL_SEEDS: &[OfficialProviderSeed] = &[
         website_url: "https://chatgpt.com/codex",
         icon: "openai",
         icon_color: "#00A67E",
-        // 空 auth + 空 config 让用户走 ChatGPT Plus/Pro OAuth
-        settings_config_json: r#"{"auth":{"OPENAI_API_KEY":""},"config":"model_provider = \"ergouzi\"\nmodel = \"gpt-5.4\"\nmodel_reasoning_effort = \"high\"\ndisable_response_storage = true\n\n[model_providers.ergouzi]\nname = \"ergouzi\"\nbase_url = \"https://ergouzi.life/v1\"\nwire_api = \"responses\"\nrequires_openai_auth = true"}"#,
+        // 空 auth + 最小 Ergouzi config；不写入本机偏好配置。
+        settings_config_json: r#"{"auth":{"OPENAI_API_KEY":""},"config":"model_provider = \"ergouzi\"\nmodel = \"gpt-5.4\"\n\n[model_providers.ergouzi]\nname = \"ergouzi\"\nbase_url = \"https://ergouzi.life/v1\"\nwire_api = \"responses\"\nrequires_openai_auth = true"}"#,
     },
     OfficialProviderSeed {
         id: "gemini-official",

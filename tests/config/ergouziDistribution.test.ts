@@ -13,6 +13,7 @@ import {
   OPENCODE_DEFAULT_CONFIG,
   OPENCLAW_DEFAULT_CONFIG,
 } from "@/components/providers/forms/helpers/opencodeFormUtils";
+import { ERGOUZI_CODEX_CONFIG } from "@/config/ergouziDefaults";
 import { HERMES_DEFAULT_CONFIG } from "@/components/providers/forms/hooks/useHermesFormState";
 
 const ERGOUZI_ROOT_URL = "https://ergouzi.life";
@@ -76,11 +77,10 @@ describe("Ergouzi distribution defaults", () => {
       ERGOUZI_ROOT_URL,
     );
     expect(claudeDesktopOfficial?.baseUrl).toBe(ERGOUZI_ROOT_URL);
-    expect(codexOfficial?.config).toContain(
-      `base_url = "${ERGOUZI_V1_URL}"`,
-    );
-    expect((geminiOfficial?.settingsConfig as any).env.GOOGLE_GEMINI_BASE_URL)
-      .toBe(ERGOUZI_ROOT_URL);
+    expect(codexOfficial?.config).toContain(`base_url = "${ERGOUZI_V1_URL}"`);
+    expect(
+      (geminiOfficial?.settingsConfig as any).env.GOOGLE_GEMINI_BASE_URL,
+    ).toBe(ERGOUZI_ROOT_URL);
   });
 
   it("uses Ergouzi endpoints for new provider form defaults", () => {
@@ -93,16 +93,48 @@ describe("Ergouzi distribution defaults", () => {
     expect(parseJson<any>(CODEX_DEFAULT_CONFIG).config).toContain(
       `base_url = "${ERGOUZI_V1_URL}"`,
     );
-    expect(parseJson<any>(GEMINI_DEFAULT_CONFIG).env.GOOGLE_GEMINI_BASE_URL)
-      .toBe(ERGOUZI_ROOT_URL);
+    expect(
+      parseJson<any>(GEMINI_DEFAULT_CONFIG).env.GOOGLE_GEMINI_BASE_URL,
+    ).toBe(ERGOUZI_ROOT_URL);
     expect(parseJson<any>(OPENCODE_DEFAULT_CONFIG).options.baseURL).toBe(
       ERGOUZI_V1_URL,
     );
     expect(parseJson<any>(OPENCLAW_DEFAULT_CONFIG).baseUrl).toBe(
       ERGOUZI_V1_URL,
     );
-    expect(parseJson<any>(HERMES_DEFAULT_CONFIG).base_url).toBe(
-      ERGOUZI_V1_URL,
+    expect(parseJson<any>(HERMES_DEFAULT_CONFIG).base_url).toBe(ERGOUZI_V1_URL);
+  });
+
+  it("keeps Ergouzi Codex defaults free of local machine preferences", () => {
+    const codexOfficial = codexProviderPresets.find(
+      (preset) => preset.name === "OpenAI Official",
     );
+    const configTexts = [
+      ERGOUZI_CODEX_CONFIG,
+      parseJson<any>(CODEX_DEFAULT_CONFIG).config,
+      codexOfficial?.config ?? "",
+    ];
+
+    for (const configText of configTexts) {
+      expect(configText).not.toContain("model_reasoning_effort");
+      expect(configText).not.toContain("disable_response_storage");
+      expect(configText).not.toContain("personality");
+      expect(configText).not.toContain("model_context_window");
+      expect(configText).not.toContain("model_auto_compact_token_limit");
+      expect(configText).not.toContain("los_sux");
+      expect(configText).not.toContain("OneDrive");
+      expect(configText).not.toContain("AppData");
+    }
+  });
+
+  it("uses Ergouzi security policy wording and links", () => {
+    const securityPolicy = readFileSync(resolve("SECURITY.md"), "utf8");
+
+    expect(securityPolicy).toContain("Ergouzi Switch");
+    expect(securityPolicy).toContain(
+      "https://github.com/suboxiu88-coder/ergouzi-switch",
+    );
+    expect(securityPolicy).not.toContain("farion1231/cc-switch");
+    expect(securityPolicy).not.toContain("CC Switch receives security updates");
   });
 });

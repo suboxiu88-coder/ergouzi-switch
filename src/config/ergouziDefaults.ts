@@ -7,8 +7,6 @@ export const ERGOUZI_CODEX_PROVIDER = "ergouzi";
 
 export const ERGOUZI_CODEX_CONFIG = `model_provider = "${ERGOUZI_CODEX_PROVIDER}"
 model = "${ERGOUZI_DEFAULT_MODEL}"
-model_reasoning_effort = "high"
-disable_response_storage = true
 
 [model_providers.${ERGOUZI_CODEX_PROVIDER}]
 name = "${ERGOUZI_CODEX_PROVIDER}"
