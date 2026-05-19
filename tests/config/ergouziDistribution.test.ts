@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { claudeDesktopProviderPresets } from "@/config/claudeDesktopProviderPresets";
@@ -20,6 +21,12 @@ const ERGOUZI_ROOT_URL = "https://ergouzi.life";
 const ERGOUZI_V1_URL = "https://ergouzi.life/v1";
 
 const parseJson = <T>(value: string): T => JSON.parse(value) as T;
+const readText = (...segments: string[]) =>
+  readFileSync(resolve(...segments), "utf8");
+const sha256 = (...segments: string[]) =>
+  createHash("sha256")
+    .update(readFileSync(resolve(...segments)))
+    .digest("hex");
 
 describe("Ergouzi distribution defaults", () => {
   it("brands the npm package and Tauri product as Ergouzi Switch", () => {
@@ -136,5 +143,98 @@ describe("Ergouzi distribution defaults", () => {
     );
     expect(securityPolicy).not.toContain("farion1231/cc-switch");
     expect(securityPolicy).not.toContain("CC Switch receives security updates");
+  });
+
+  it("uses clean-install first-run messaging across bundled locales", () => {
+    for (const locale of ["zh", "en", "ja"]) {
+      const messages = JSON.parse(
+        readText("src", "i18n", "locales", `${locale}.json`),
+      ) as any;
+
+      expect(messages.app.title).toBe("Ergouzi Switch");
+      expect(messages.firstRunNotice.title).toContain("Ergouzi Switch");
+      expect(messages.firstRunNotice.bodyDefault).not.toContain(
+        "saved your existing setup",
+      );
+      expect(messages.firstRunNotice.bodyDefault).not.toContain("自動的に保存");
+      expect(messages.firstRunNotice.bodyDefault).not.toContain("自动保存");
+    }
+  });
+
+  it("keeps app-local state in a clean Ergouzi data directory", () => {
+    const productionPathText = [
+      readText("src-tauri", "src", "config.rs"),
+      readText("src-tauri", "src", "settings.rs"),
+      readText("src-tauri", "src", "panic_hook.rs"),
+      readText("src-tauri", "src", "services", "env_manager.rs"),
+      readText("src", "hooks", "useDirectorySettings.ts"),
+      readText("src", "main.tsx"),
+    ].join("\n");
+    const configText = readText("src-tauri", "src", "config.rs");
+
+    expect(productionPathText).toContain(".ergouzi-switch");
+    expect(productionPathText).not.toContain('join(".cc-switch")');
+    expect(productionPathText).not.toContain("~/.cc-switch/config.json");
+    expect(configText).not.toContain("legacy_dir");
+    expect(configText).not.toContain("HOME/.cc-switch");
+  });
+
+  it("does not auto-import local machine configs on startup", () => {
+    const libText = readText("src-tauri", "src", "lib.rs");
+
+    expect(libText).toContain(
+      "const AUTO_IMPORT_LOCAL_CONFIG_ON_STARTUP: bool = false;",
+    );
+    expect(libText).toContain(
+      "startup imports from local app configs are disabled",
+    );
+  });
+
+  it("uses Ergouzi names for built-in sync roots", () => {
+    const settingsText = readText("src-tauri", "src", "settings.rs");
+    const webdavSettingsText = readText(
+      "src",
+      "components",
+      "settings",
+      "WebdavSyncSection.tsx",
+    );
+
+    expect(settingsText).toContain('"ergouzi-switch-sync"');
+    expect(webdavSettingsText).toContain('"ergouzi-switch-sync"');
+    expect(webdavSettingsText).not.toContain('"cc-switch-sync"');
+  });
+
+  it("uses the uploaded Ergouzi logo in the app chrome", () => {
+    const appText = readText("src", "App.tsx");
+
+    expect(sha256("src", "assets", "icons", "ergouzi-logo.png")).toBe(
+      sha256("logo_180x180.png"),
+    );
+    expect(appText).toContain("@/assets/icons/ergouzi-logo.png");
+    expect(appText).toContain('alt="Ergouzi Switch"');
+  });
+
+  it("uses Ergouzi names for user-facing shell integration labels", () => {
+    const libText = readText("src-tauri", "src", "lib.rs");
+    const autoLaunchText = readText("src-tauri", "src", "auto_launch.rs");
+    const infoPlistText = readText("src-tauri", "Info.plist");
+
+    expect(libText).toContain('.tooltip("Ergouzi Switch")');
+    expect(libText).not.toContain('.tooltip("CC Switch")');
+    expect(autoLaunchText).toContain('let app_name = "Ergouzi Switch";');
+    expect(autoLaunchText).not.toContain('let app_name = "CC Switch";');
+    expect(infoPlistText).toContain("Ergouzi Switch Deep Link");
+    expect(infoPlistText).not.toContain("CC Switch Deep Link");
+  });
+
+  it("builds Windows installers with Chinese UI language", () => {
+    const tauriConfig = JSON.parse(
+      readText("src-tauri", "tauri.conf.json"),
+    ) as any;
+    const windowsConfig = tauriConfig.bundle.windows;
+
+    expect(windowsConfig.nsis.languages).toEqual(["SimpChinese"]);
+    expect(windowsConfig.nsis.displayLanguageSelector).toBe(false);
+    expect(windowsConfig.wix.language).toBe("zh-CN");
   });
 });

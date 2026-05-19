@@ -46,7 +46,12 @@
     ],
     "windows": {
       "wix": {
+        "language": "zh-CN",
         "template": "wix/per-user-main.wxs"
+      },
+      "nsis": {
+        "languages": ["SimpChinese"],
+        "displayLanguageSelector": false
       }
     },
     "macOS": {

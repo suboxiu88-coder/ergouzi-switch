@@ -29,7 +29,7 @@ pub fn reset_test_fs() {
     for sub in [
         ".claude",
         ".codex",
-        ".cc-switch",
+        ".ergouzi-switch",
         ".gemini",
         ".config",
         ".openclaw",

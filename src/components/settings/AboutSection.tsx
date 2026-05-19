@@ -242,9 +242,7 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
           : "";
 
       if (!displayVersion) {
-        await settingsApi.openExternal(
-          "https://ergouzi.life/",
-        );
+        await settingsApi.openExternal("https://ergouzi.life/");
         return;
       }
 
@@ -374,9 +372,7 @@ export function AboutSection({ isPortable }: AboutSectionProps) {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() =>
-                settingsApi.openExternal("https://ergouzi.life/")
-              }
+              onClick={() => settingsApi.openExternal("https://ergouzi.life/")}
               className="h-8 gap-1.5 text-xs"
             >
               <Github className="h-3.5 w-3.5" />

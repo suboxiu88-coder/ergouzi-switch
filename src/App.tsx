@@ -89,6 +89,7 @@ import ToolsPanel from "@/components/openclaw/ToolsPanel";
 import AgentsDefaultsPanel from "@/components/openclaw/AgentsDefaultsPanel";
 import OpenClawHealthBanner from "@/components/openclaw/OpenClawHealthBanner";
 import HermesMemoryPanel from "@/components/hermes/HermesMemoryPanel";
+import ergouziLogo from "@/assets/icons/ergouzi-logo.png";
 
 type View =
   | "providers"
@@ -1218,6 +1219,12 @@ function App() {
             ) : (
               <div className="flex items-center gap-2">
                 <div className="relative inline-flex items-center">
+                  <img
+                    src={ergouziLogo}
+                    alt="Ergouzi Switch"
+                    className="mr-2 h-7 w-7 shrink-0 rounded-md"
+                    draggable={false}
+                  />
                   <a
                     href="https://ergouzi.life/"
                     target="_blank"

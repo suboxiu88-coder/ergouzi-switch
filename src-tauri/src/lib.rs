@@ -67,6 +67,8 @@ use tauri::RunEvent;
 use tauri::{Emitter, Manager};
 use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 
+const AUTO_IMPORT_LOCAL_CONFIG_ON_STARTUP: bool = false;
+
 fn redact_url_for_log(url_str: &str) -> String {
     match url::Url::parse(url_str) {
         Ok(url) => {
@@ -200,7 +202,7 @@ fn macos_tray_icon() -> Option<Image<'static>> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // 设置 panic hook，在应用崩溃时记录日志到 <app_config_dir>/crash.log（默认 ~/.cc-switch/crash.log）
+    // 设置 panic hook，在应用崩溃时记录日志到 <app_config_dir>/crash.log（默认 ~/.ergouzi-switch/crash.log）
     panic_hook::setup_panic_hook();
 
     let mut builder = tauri::Builder::default();
@@ -492,39 +494,45 @@ pub fn run() {
             let fresh_install_at_startup =
                 app_state.db.is_providers_empty().unwrap_or(false);
 
-            for app_type in
-                crate::app_config::AppType::all().filter(|t| !t.is_additive_mode())
-            {
-                if !crate::services::provider::should_import_default_config_on_startup(
-                    &app_state,
-                    &app_type,
-                )
-                .unwrap_or(false)
+            if AUTO_IMPORT_LOCAL_CONFIG_ON_STARTUP {
+                for app_type in
+                    crate::app_config::AppType::all().filter(|t| !t.is_additive_mode())
                 {
-                    log::debug!(
-                        "○ {} already has providers; live import skipped",
-                        app_type.as_str()
-                    );
-                    continue;
-                }
+                    if !crate::services::provider::should_import_default_config_on_startup(
+                        &app_state,
+                        &app_type,
+                    )
+                    .unwrap_or(false)
+                    {
+                        log::debug!(
+                            "○ {} already has providers; live import skipped",
+                            app_type.as_str()
+                        );
+                        continue;
+                    }
 
-                match crate::services::provider::import_default_config(
-                    &app_state,
-                    app_type.clone(),
-                ) {
-                    Ok(true) => log::info!(
-                        "✓ Imported live config for {} as default provider",
-                        app_type.as_str()
-                    ),
-                    Ok(false) => log::debug!(
-                        "○ {} already has providers; live import skipped",
-                        app_type.as_str()
-                    ),
-                    Err(e) => log::debug!(
-                        "○ No live config to import for {}: {e}",
-                        app_type.as_str()
-                    ),
+                    match crate::services::provider::import_default_config(
+                        &app_state,
+                        app_type.clone(),
+                    ) {
+                        Ok(true) => log::info!(
+                            "✓ Imported live config for {} as default provider",
+                            app_type.as_str()
+                        ),
+                        Ok(false) => log::debug!(
+                            "○ {} already has providers; live import skipped",
+                            app_type.as_str()
+                        ),
+                        Err(e) => log::debug!(
+                            "○ No live config to import for {}: {e}",
+                            app_type.as_str()
+                        ),
+                    }
                 }
+            } else {
+                log::info!(
+                    "Ergouzi clean distribution: startup imports from local app configs are disabled"
+                );
             }
 
             match app_state.db.init_default_official_providers() {
@@ -541,6 +549,7 @@ pub fn run() {
                 log::info!("✓ First-run welcome notice pending");
             }
 
+            if AUTO_IMPORT_LOCAL_CONFIG_ON_STARTUP {
             // 1.6. 自动同步 OpenCode / OpenClaw 的 live providers 到数据库
             //
             // additive 模式（OpenCode / OpenClaw）的 import 函数本身按 id 幂等，
@@ -693,6 +702,12 @@ pub fn run() {
                 }
             }
 
+            } else {
+                log::info!(
+                    "Ergouzi clean distribution: startup imports from local app configs are disabled"
+                );
+            }
+
             // 迁移旧的 app_config_dir 配置到 Store
             if let Err(e) = app_store::migrate_app_config_dir_from_settings(app.handle()) {
                 log::warn!("迁移 app_config_dir 失败: {e}");
@@ -769,7 +784,7 @@ pub fn run() {
 
             // 构建托盘
             let mut tray_builder = TrayIconBuilder::with_id(tray::TRAY_ID)
-                .tooltip("CC Switch") // 鼠标悬停提示
+                .tooltip("Ergouzi Switch") // 鼠标悬停提示
                 .on_tray_icon_event(|tray, event| match event {
                     // 鼠标悬停/点击到托盘图标时，后台异步刷新用量缓存，
                     // 让用户下一次（或快速打开菜单的那一刻）看到较新的数字。
@@ -915,7 +930,13 @@ pub fn run() {
                     }
                 }
 
-                initialize_common_config_snippets(&state);
+                if AUTO_IMPORT_LOCAL_CONFIG_ON_STARTUP {
+                    initialize_common_config_snippets(&state);
+                } else {
+                    log::debug!(
+                        "Ergouzi clean distribution: common config snippet auto-import disabled"
+                    );
+                }
 
                 // 检查 settings 表中的代理状态，自动恢复代理服务
                 restore_proxy_state_on_startup(&state).await;
