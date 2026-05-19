@@ -296,7 +296,7 @@ impl Database {
 
     /// 生成一致性快照备份，返回备份文件路径（不存在主库时返回 None）
     pub(crate) fn backup_database_file(&self) -> Result<Option<PathBuf>, AppError> {
-        let db_path = get_app_config_dir().join("cc-switch.db");
+        let db_path = get_app_config_dir().join("ergouzi-switch.db");
         if !db_path.exists() {
             return Ok(None);
         }
@@ -786,7 +786,7 @@ mod tests {
     fn periodic_maintenance_runs_even_when_auto_backup_disabled() -> Result<(), AppError> {
         let old_test_home = std::env::var_os("CC_SWITCH_TEST_HOME");
         let test_home =
-            std::env::temp_dir().join("cc-switch-periodic-maintenance-backup-disabled-test");
+            std::env::temp_dir().join("ergouzi-switch-periodic-maintenance-backup-disabled-test");
         let _ = std::fs::remove_dir_all(&test_home);
         std::fs::create_dir_all(&test_home).expect("create test home");
         std::env::set_var("CC_SWITCH_TEST_HOME", &test_home);

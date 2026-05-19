@@ -29,7 +29,7 @@ use archive::{
 
 // ─── Protocol constants ──────────────────────────────────────
 
-const PROTOCOL_FORMAT: &str = "cc-switch-webdav-sync";
+const PROTOCOL_FORMAT: &str = "ergouzi-switch-webdav-sync";
 const PROTOCOL_VERSION: u32 = 2;
 const DB_COMPAT_VERSION: u32 = 6;
 const LEGACY_DB_COMPAT_VERSION: u32 = 5;

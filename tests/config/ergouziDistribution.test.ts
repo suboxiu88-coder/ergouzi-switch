@@ -19,6 +19,10 @@ import { HERMES_DEFAULT_CONFIG } from "@/components/providers/forms/hooks/useHer
 
 const ERGOUZI_ROOT_URL = "https://ergouzi.life";
 const ERGOUZI_V1_URL = "https://ergouzi.life/v1";
+const LEGACY_BRAND = ["CC", " Switch"].join("");
+const LEGACY_SLUG = ["cc", "switch"].join("-");
+const LEGACY_DEEPLINK_SCHEME = ["cc", "switch"].join("");
+const LEGACY_UPSTREAM_REPO = ["farion1231", "/", LEGACY_SLUG].join("");
 
 const parseJson = <T>(value: string): T => JSON.parse(value) as T;
 const readText = (...segments: string[]) =>
@@ -42,7 +46,7 @@ describe("Ergouzi distribution defaults", () => {
     expect(tauriConfig.identifier).toBe("life.ergouzi.switch");
   });
 
-  it("does not point update checks at the upstream cc-switch releases", () => {
+  it("does not point update checks at the upstream original releases", () => {
     const tauriConfigText = readFileSync(
       resolve("src-tauri", "tauri.conf.json"),
       "utf8",
@@ -61,11 +65,11 @@ describe("Ergouzi distribution defaults", () => {
       "utf8",
     );
 
-    expect(tauriConfigText).not.toContain("farion1231/cc-switch");
-    expect(miscCommandText).not.toContain("farion1231/cc-switch");
-    expect(aboutSectionText).not.toContain("farion1231/cc-switch");
-    expect(trayText).not.toContain("ccswitch.io");
-    expect(cargoManifestText).not.toContain("farion1231/cc-switch");
+    expect(tauriConfigText).not.toContain(LEGACY_UPSTREAM_REPO);
+    expect(miscCommandText).not.toContain(LEGACY_UPSTREAM_REPO);
+    expect(aboutSectionText).not.toContain(LEGACY_UPSTREAM_REPO);
+    expect(trayText).not.toContain(`${LEGACY_DEEPLINK_SCHEME}.io`);
+    expect(cargoManifestText).not.toContain(LEGACY_UPSTREAM_REPO);
   });
 
   it("uses Ergouzi as the routable default frontend provider", () => {
@@ -156,8 +160,10 @@ describe("Ergouzi distribution defaults", () => {
     expect(securityPolicy).toContain(
       "https://github.com/suboxiu88-coder/ergouzi-switch",
     );
-    expect(securityPolicy).not.toContain("farion1231/cc-switch");
-    expect(securityPolicy).not.toContain("CC Switch receives security updates");
+    expect(securityPolicy).not.toContain(LEGACY_UPSTREAM_REPO);
+    expect(securityPolicy).not.toContain(
+      `${LEGACY_BRAND} receives security updates`,
+    );
   });
 
   it("uses clean-install first-run messaging across bundled locales", () => {
@@ -169,8 +175,8 @@ describe("Ergouzi distribution defaults", () => {
 
       expect(messages.app.title).toBe("Ergouzi Switch");
       expect(messages.firstRunNotice.title).toContain("Ergouzi Switch");
-      expect(serializedMessages).not.toContain("CC Switch");
-      expect(serializedMessages).not.toContain("cc-switch");
+      expect(serializedMessages).not.toContain(LEGACY_BRAND);
+      expect(serializedMessages).not.toContain(LEGACY_SLUG);
       expect(messages.firstRunNotice.bodyDefault).not.toContain(
         "saved your existing setup",
       );
@@ -191,10 +197,10 @@ describe("Ergouzi distribution defaults", () => {
     const configText = readText("src-tauri", "src", "config.rs");
 
     expect(productionPathText).toContain(".ergouzi-switch");
-    expect(productionPathText).not.toContain('join(".cc-switch")');
-    expect(productionPathText).not.toContain("~/.cc-switch/config.json");
+    expect(productionPathText).not.toContain(`join(".${LEGACY_SLUG}")`);
+    expect(productionPathText).not.toContain(`~/.${LEGACY_SLUG}/config.json`);
     expect(configText).not.toContain("legacy_dir");
-    expect(configText).not.toContain("HOME/.cc-switch");
+    expect(configText).not.toContain(`HOME/.${LEGACY_SLUG}`);
   });
 
   it("does not auto-import local machine configs on startup", () => {
@@ -219,7 +225,7 @@ describe("Ergouzi distribution defaults", () => {
 
     expect(settingsText).toContain('"ergouzi-switch-sync"');
     expect(webdavSettingsText).toContain('"ergouzi-switch-sync"');
-    expect(webdavSettingsText).not.toContain('"cc-switch-sync"');
+    expect(webdavSettingsText).not.toContain(`"${LEGACY_SLUG}-sync"`);
   });
 
   it("uses the uploaded Ergouzi logo in the app chrome", () => {
@@ -244,11 +250,16 @@ describe("Ergouzi distribution defaults", () => {
     expect(tauriConfig.app.windows[0].title).toBe("Ergouzi Switch");
     expect(indexHtmlText).toContain("<title>Ergouzi Switch</title>");
     expect(libText).toContain('.tooltip("Ergouzi Switch")');
-    expect(libText).not.toContain('.tooltip("CC Switch")');
+    expect(libText).not.toContain(`.tooltip("${LEGACY_BRAND}")`);
     expect(autoLaunchText).toContain('let app_name = "Ergouzi Switch";');
-    expect(autoLaunchText).not.toContain('let app_name = "CC Switch";');
+    expect(autoLaunchText).not.toContain(`let app_name = "${LEGACY_BRAND}";`);
     expect(infoPlistText).toContain("Ergouzi Switch Deep Link");
-    expect(infoPlistText).not.toContain("CC Switch Deep Link");
+    expect(infoPlistText).not.toContain(`${LEGACY_BRAND} Deep Link`);
+    expect(tauriConfig.plugins["deep-link"].desktop.schemes).toEqual([
+      "ergouziswitch",
+    ]);
+    expect(infoPlistText).toContain("ergouziswitch");
+    expect(infoPlistText).not.toContain(LEGACY_DEEPLINK_SCHEME);
   });
 
   it("builds Windows installers with Chinese UI language", () => {
@@ -307,13 +318,15 @@ describe("Ergouzi distribution defaults", () => {
       readText("src-tauri", "src", "commands", "codex_oauth.rs"),
       readText("src-tauri", "src", "commands", "misc.rs"),
       readText("src-tauri", "src", "tray.rs"),
+      readText("src-tauri", "src", "panic_hook.rs"),
+      readText("src", "components", "UsageScriptModal.tsx"),
     ].join("\n");
 
-    expect(visibleTexts).not.toContain("CC Switch");
-    expect(visibleTexts).not.toContain("[cc-switch]");
-    expect(visibleTexts).not.toContain("cc-switch-export");
-    expect(visibleTexts).not.toContain("via cc-switch");
-    expect(visibleTexts).not.toContain("ccswitch.io");
+    expect(visibleTexts).not.toContain(LEGACY_BRAND);
+    expect(visibleTexts).not.toContain(`[${LEGACY_SLUG}]`);
+    expect(visibleTexts).not.toContain(`${LEGACY_SLUG}-export`);
+    expect(visibleTexts).not.toContain(`via ${LEGACY_SLUG}`);
+    expect(visibleTexts).not.toContain(`${LEGACY_DEEPLINK_SCHEME}.io`);
     expect(visibleTexts).toContain("Ergouzi Switch");
     expect(visibleTexts).toContain("https://ergouzi.life/");
     expect(visibleTexts).toContain("ergouzi-switch-export");

@@ -116,7 +116,7 @@ interface WebDavSyncStatusUpdatedPayload {
 const DEFAULT_DRAG_BAR_HEIGHT = isWindows() || isLinux() ? 0 : 28; // px
 const HEADER_HEIGHT = 64; // px
 
-const STORAGE_KEY = "cc-switch-last-app";
+const STORAGE_KEY = "ergouzi-switch-last-app";
 const VALID_APPS: AppId[] = [
   "claude",
   "claude-desktop",
@@ -135,7 +135,7 @@ const getInitialApp = (): AppId => {
   return "claude";
 };
 
-const VIEW_STORAGE_KEY = "cc-switch-last-view";
+const VIEW_STORAGE_KEY = "ergouzi-switch-last-view";
 const VALID_VIEWS: View[] = [
   "providers",
   "settings",

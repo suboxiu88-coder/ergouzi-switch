@@ -628,7 +628,7 @@ impl ProviderAdapter for ClaudeAdapter {
                     (HeaderName::from_static("authorization"), hv(&bearer)?),
                     (
                         HeaderName::from_static("originator"),
-                        HeaderValue::from_static("cc-switch"),
+                        HeaderValue::from_static("ergouzi-switch"),
                     ),
                 ]
             }

@@ -8,7 +8,7 @@ Ergouzi Switch is a community distribution based on CC Switch. This repository o
 
 Only the latest Ergouzi Switch release receives community security updates.
 
-仅最新版 Ergouzi Switch 群友版会接收社区安全修复。
+仅最新版本 Ergouzi Switch 群友版会接收社区安全修复。
 
 | Version / 版本 | Supported / 是否支持 |
 | -------------- | -------------------- |

@@ -1271,7 +1271,7 @@ This beta release introduces the **Local API Proxy** feature, along with Skills 
   - Google Official (OAuth authentication)
   - PackyCode (partner integration)
   - Custom endpoint support
-- **Deep link support** - Import Gemini providers via `ccswitch://` protocol
+- **Deep link support** - Import Gemini providers via `ergouziswitch://` protocol
 - **System tray integration** - Quick-switch Gemini providers from tray menu
 - **Backend modules** - New `gemini_config.rs` (20KB) and `gemini_mcp.rs`
 
@@ -1332,9 +1332,9 @@ This beta release introduces the **Local API Proxy** feature, along with Skills 
   - usePromptActions: Business logic hook (152 lines)
 - **Full i18n support** - Complete Chinese/English translations (41+ keys)
 
-#### Deep Link Protocol (ccswitch://)
+#### Deep Link Protocol (ergouziswitch://)
 
-- **Protocol registration** - `ccswitch://` URL scheme for one-click imports
+- **Protocol registration** - `ergouziswitch://` URL scheme for one-click imports
 - **Provider import** - Import provider configurations from URLs or shared links
 - **Lifecycle integration** - Deep link handling integrated into app startup
 - **Cross-platform support** - Works on Windows, macOS, and Linux
@@ -1621,9 +1621,9 @@ v3.7.0 represents a major evolution from "Provider Switcher" to **"All-in-One AI
 - Refined UI/UX with better spacing, icons, and visual feedback
 - Enhanced tray menu functionality and responsiveness
 - **Standardized release artifact naming** - All platform releases now use consistent version-tagged filenames:
-  - macOS: `CC-Switch-v{version}-macOS.tar.gz` / `.zip`
-  - Windows: `CC-Switch-v{version}-Windows.msi` / `-Portable.zip`
-  - Linux: `CC-Switch-v{version}-Linux.AppImage` / `.deb`
+  - macOS: `Ergouzi-Switch-v{version}-macOS.tar.gz` / `.zip`
+  - Windows: `Ergouzi-Switch-v{version}-Windows.msi` / `-Portable.zip`
+  - Linux: `Ergouzi-Switch-v{version}-Linux.AppImage` / `.deb`
 
 ### 🐛 Bug Fixes
 

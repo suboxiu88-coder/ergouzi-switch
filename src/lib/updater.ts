@@ -56,7 +56,7 @@ export async function checkForUpdate(
   | { status: "available"; info: UpdateInfo; update: UpdateHandle }
 > {
   void opts;
-  // Ergouzi 群友版关闭应用内自动更新，避免误连原版 cc-switch release。
+  // Ergouzi 群友版关闭应用内自动更新，避免误连原版 original release。
   // 新版本通过本仓库 GitHub Releases 手动下载安装。
   return { status: "up-to-date" };
 }

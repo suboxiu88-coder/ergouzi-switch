@@ -1062,7 +1062,7 @@ fn export_sql_returns_error_for_invalid_path() {
 
     // Try to export to an invalid path (nonexistent parent or invalid name on Windows)
     let invalid_parent = if cfg!(windows) {
-        std::env::temp_dir().join("cc-switch-test-invalid<>dir")
+        std::env::temp_dir().join("ergouzi-switch-test-invalid<>dir")
     } else {
         PathBuf::from("/nonexistent/directory")
     };
@@ -1099,13 +1099,13 @@ fn import_sql_rejects_non_cc_switch_backup() {
 
     let state = create_test_state().expect("create test state");
 
-    let import_path = home.join("not-cc-switch.sql");
+    let import_path = home.join("not-ergouzi-switch.sql");
     fs::write(&import_path, "CREATE TABLE x (id INTEGER);").expect("write import sql");
 
     let err = state
         .db
         .import_sql(&import_path)
-        .expect_err("non-cc-switch sql should be rejected");
+        .expect_err("non-ergouzi-switch sql should be rejected");
 
     match err {
         AppError::Localized { key, .. } => {
@@ -1140,7 +1140,7 @@ fn import_sql_accepts_cc_switch_exported_backup() {
     }
 
     let state = create_test_state_with_config(&config).expect("create test state");
-    let export_path = home.join("cc-switch-export.sql");
+    let export_path = home.join("ergouzi-switch-export.sql");
     state
         .db
         .export_sql(&export_path)
