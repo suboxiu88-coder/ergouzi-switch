@@ -238,6 +238,27 @@ describe("Ergouzi distribution defaults", () => {
     expect(appText).toContain('alt="Ergouzi Switch"');
   });
 
+  it("supports ClaudeZhCN 3P profile storage on Windows", () => {
+    const claudeDesktopConfigText = readText(
+      "src-tauri",
+      "src",
+      "claude_desktop_config.rs",
+    );
+    const roamingLookup = "pick_windows_claude_dir(roaming_app_data, true)";
+    const localLookup = "pick_windows_claude_dir(local_app_data, true)";
+
+    expect(claudeDesktopConfigText).toContain('std::env::var_os("APPDATA")');
+    expect(claudeDesktopConfigText).toContain("windows_paths_from_app_data_dirs");
+    expect(claudeDesktopConfigText.indexOf(roamingLookup)).toBeGreaterThanOrEqual(0);
+    expect(claudeDesktopConfigText.indexOf(localLookup)).toBeGreaterThanOrEqual(0);
+    expect(claudeDesktopConfigText.indexOf(roamingLookup)).toBeLessThan(
+      claudeDesktopConfigText.indexOf(localLookup),
+    );
+    expect(claudeDesktopConfigText).toContain(
+      "windows_paths_prefer_roaming_claude_zhcn_3p_profile_dir",
+    );
+  });
+
   it("uses Ergouzi names for user-facing shell integration labels", () => {
     const tauriConfig = JSON.parse(
       readText("src-tauri", "tauri.conf.json"),

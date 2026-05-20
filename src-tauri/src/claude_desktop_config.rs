@@ -1019,7 +1019,11 @@ fn current_platform_paths() -> Result<ClaudeDesktopPaths, AppError> {
     #[cfg(windows)]
     {
         let local_app_data = windows_local_app_data_dir();
-        return Ok(windows_paths_from_local_app_data(&local_app_data));
+        let roaming_app_data = windows_roaming_app_data_dir();
+        return Ok(windows_paths_from_app_data_dirs(
+            &local_app_data,
+            &roaming_app_data,
+        ));
     }
 
     #[cfg(not(any(target_os = "macos", windows)))]
@@ -1042,10 +1046,22 @@ fn windows_local_app_data_dir() -> PathBuf {
 }
 
 #[cfg(windows)]
-fn windows_paths_from_local_app_data(local_app_data: &Path) -> ClaudeDesktopPaths {
+fn windows_roaming_app_data_dir() -> PathBuf {
+    std::env::var_os("APPDATA")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| get_home_dir().join("AppData").join("Roaming"))
+}
+
+#[cfg(windows)]
+fn windows_paths_from_app_data_dirs(
+    local_app_data: &Path,
+    roaming_app_data: &Path,
+) -> ClaudeDesktopPaths {
     let normal_dir = pick_windows_claude_dir(local_app_data, false)
+        .or_else(|| pick_windows_claude_dir(roaming_app_data, false))
         .unwrap_or_else(|| local_app_data.join("Claude"));
-    let threep_dir = pick_windows_claude_dir(local_app_data, true)
+    let threep_dir = pick_windows_claude_dir(roaming_app_data, true)
+        .or_else(|| pick_windows_claude_dir(local_app_data, true))
         .unwrap_or_else(|| local_app_data.join("Claude-3p"));
     paths_from_dirs(normal_dir, threep_dir)
 }
@@ -1136,6 +1152,32 @@ mod tests {
 
     fn test_db() -> Database {
         Database::memory().expect("memory db")
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_paths_prefer_roaming_claude_zhcn_3p_profile_dir() {
+        let temp = TempDir::new().expect("temp dir");
+        let local_app_data = temp.path().join("Local");
+        let roaming_app_data = temp.path().join("Roaming");
+
+        std::fs::create_dir_all(local_app_data.join("Claude")).expect("local claude dir");
+        std::fs::create_dir_all(local_app_data.join("Claude-3p")).expect("local 3p dir");
+        std::fs::create_dir_all(roaming_app_data.join("ClaudeZhCN-3p"))
+            .expect("roaming zhcn 3p dir");
+
+        let paths = windows_paths_from_app_data_dirs(&local_app_data, &roaming_app_data);
+
+        assert_eq!(
+            paths.config_library_path,
+            roaming_app_data
+                .join("ClaudeZhCN-3p")
+                .join(CONFIG_LIBRARY_DIR)
+        );
+        assert_eq!(
+            paths.threep_config_path,
+            roaming_app_data.join("ClaudeZhCN-3p").join(CONFIG_FILE)
+        );
     }
 
     fn direct_provider(id: &str) -> Provider {
